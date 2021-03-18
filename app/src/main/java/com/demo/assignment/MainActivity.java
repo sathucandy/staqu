@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.demo.assignment.adapters.QuestionsAdapter;
 import com.demo.assignment.listeners.OnItemClickListener;
@@ -25,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     private RecyclerView rvQuestions;
     private ProgressBar progressBar;
+    private TextView tvError;
+    private Button btnRetry;
+    private SwipeRefreshLayout swipeToRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         rvQuestions = findViewById(R.id.rv_questions);
         progressBar = findViewById(R.id.progress_circular);
+        tvError = findViewById(R.id.tv_error);
+        btnRetry = findViewById(R.id.btn_retry);
+        swipeToRefresh = findViewById(R.id.swipe_to_refresh);
 
         questionsAdapter = new QuestionsAdapter(this);
         rvQuestions.setLayoutManager(new LinearLayoutManager(this));
@@ -42,12 +51,32 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         rvQuestions.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
+
+        btnRetry.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            tvError.setVisibility(View.GONE);
+            btnRetry.setVisibility(View.GONE);
+            stackOverflowViewModel.getQuestions();
+        });
+
+        swipeToRefresh.setOnRefreshListener(() -> stackOverflowViewModel.getQuestions());
+
         stackOverflowViewModel.getQuestions();
         stackOverflowViewModel.getQuestionsResult().observe(this, questionsResponseModelApiResult -> {
-            rvQuestions.setVisibility(View.VISIBLE);
+            swipeToRefresh.setRefreshing(false);
             progressBar.setVisibility(View.GONE);
             if (questionsResponseModelApiResult.getSuccess() != null) {
+                swipeToRefresh.setVisibility(View.VISIBLE);
+                rvQuestions.setVisibility(View.VISIBLE);
+                tvError.setVisibility(View.GONE);
+                btnRetry.setVisibility(View.GONE);
+                questionsAdapter.clear();
                 questionsAdapter.addQuestionsList(questionsResponseModelApiResult.getSuccess().getItemsList());
+            } else {
+                swipeToRefresh.setVisibility(View.GONE);
+                rvQuestions.setVisibility(View.GONE);
+                tvError.setVisibility(View.VISIBLE);
+                btnRetry.setVisibility(View.VISIBLE);
             }
         });
 

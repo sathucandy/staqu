@@ -32,6 +32,11 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Ques
         notifyDataSetChanged();
     }
 
+    public void clear() {
+        this.questionsList.clear();
+        notifyDataSetChanged();
+    }
+
     public static class QuestionsViewHolder extends RecyclerView.ViewHolder {
 
         private CircleImageView civUser;
