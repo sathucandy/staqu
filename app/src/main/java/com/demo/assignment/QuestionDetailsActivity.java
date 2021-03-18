@@ -16,16 +16,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.demo.assignment.databinding.ActivityQuestionDetailsBinding;
+
 public class QuestionDetailsActivity extends AppCompatActivity {
 
     private final String QUESTION_LINK = "questionLink";
+    private ActivityQuestionDetailsBinding activityQuestionDetailsBinding;
     private String questionLink;
-
-    private WebView webView;
-    private ProgressBar progressCircular;
-    private TextView tvError;
-    private Button btnRetry;
-    private SwipeRefreshLayout swipeToRefresh;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -33,50 +30,48 @@ public class QuestionDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question_details);
 
-        webView = findViewById(R.id.web_view);
-        progressCircular = findViewById(R.id.progress_circular);
-        tvError = findViewById(R.id.tv_error);
-        btnRetry = findViewById(R.id.btn_retry);
-        swipeToRefresh = findViewById(R.id.swipe_to_refresh);
-        WebSettings webSettings = webView.getSettings();
+        activityQuestionDetailsBinding = activityQuestionDetailsBinding.inflate(getLayoutInflater());
+        View view = activityQuestionDetailsBinding.getRoot();
+        setContentView(view);
+        WebSettings webSettings = activityQuestionDetailsBinding.webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
         questionLink = getIntent().getExtras().getString(QUESTION_LINK);
-        webView.loadUrl(questionLink);
-        webView.setWebViewClient(new WebViewClient() {
+        activityQuestionDetailsBinding.webView.loadUrl(questionLink);
+        activityQuestionDetailsBinding.webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                swipeToRefresh.setVisibility(View.GONE);
-                webView.setVisibility(View.GONE);
-                progressCircular.setVisibility(View.VISIBLE);
+                activityQuestionDetailsBinding.swipeToRefresh.setVisibility(View.GONE);
+                activityQuestionDetailsBinding.webView.setVisibility(View.GONE);
+                activityQuestionDetailsBinding.progressCircular.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                swipeToRefresh.setRefreshing(false);
-                swipeToRefresh.setVisibility(View.VISIBLE);
-                progressCircular.setVisibility(View.GONE);
-                webView.setVisibility(View.VISIBLE);
+                activityQuestionDetailsBinding.swipeToRefresh.setRefreshing(false);
+                activityQuestionDetailsBinding.swipeToRefresh.setVisibility(View.VISIBLE);
+                activityQuestionDetailsBinding.progressCircular.setVisibility(View.GONE);
+                activityQuestionDetailsBinding.webView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
-                swipeToRefresh.setVisibility(View.GONE);
-                webView.setVisibility(View.GONE);
-                tvError.setVisibility(View.VISIBLE);
-                btnRetry.setVisibility(View.VISIBLE);
+                activityQuestionDetailsBinding.swipeToRefresh.setVisibility(View.GONE);
+                activityQuestionDetailsBinding.webView.setVisibility(View.GONE);
+                activityQuestionDetailsBinding.tvError.setVisibility(View.VISIBLE);
+                activityQuestionDetailsBinding.btnRetry.setVisibility(View.VISIBLE);
             }
         });
 
-        swipeToRefresh.setOnRefreshListener(() -> webView.loadUrl(questionLink));
-        btnRetry.setOnClickListener(v -> {
-            progressCircular.setVisibility(View.VISIBLE);
-            tvError.setVisibility(View.GONE);
-            btnRetry.setVisibility(View.GONE);
-            webView.loadUrl(questionLink);
+        activityQuestionDetailsBinding.swipeToRefresh.setOnRefreshListener(() -> activityQuestionDetailsBinding.webView.loadUrl(questionLink));
+        activityQuestionDetailsBinding.btnRetry.setOnClickListener(v -> {
+            activityQuestionDetailsBinding.progressCircular.setVisibility(View.VISIBLE);
+            activityQuestionDetailsBinding.tvError.setVisibility(View.GONE);
+            activityQuestionDetailsBinding.btnRetry.setVisibility(View.GONE);
+            activityQuestionDetailsBinding.webView.loadUrl(questionLink);
         });
 
     }

@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.demo.assignment.adapters.QuestionsAdapter;
+import com.demo.assignment.databinding.ActivityMainBinding;
 import com.demo.assignment.listeners.OnItemClickListener;
 import com.demo.assignment.models.ItemsResponseModel;
 import com.demo.assignment.viewmodels.StackOverflowViewModel;
@@ -23,60 +24,52 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     private final String QUESTION_LINK = "questionLink";
 
+    private ActivityMainBinding activityMainBinding;
     private StackOverflowViewModel stackOverflowViewModel;
     private QuestionsAdapter questionsAdapter;
-
-    private RecyclerView rvQuestions;
-    private ProgressBar progressBar;
-    private TextView tvError;
-    private Button btnRetry;
-    private SwipeRefreshLayout swipeToRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        rvQuestions = findViewById(R.id.rv_questions);
-        progressBar = findViewById(R.id.progress_circular);
-        tvError = findViewById(R.id.tv_error);
-        btnRetry = findViewById(R.id.btn_retry);
-        swipeToRefresh = findViewById(R.id.swipe_to_refresh);
+        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = activityMainBinding.getRoot();
+        setContentView(view);
 
         questionsAdapter = new QuestionsAdapter(this);
-        rvQuestions.setLayoutManager(new LinearLayoutManager(this));
-        rvQuestions.setAdapter(questionsAdapter);
+        activityMainBinding.rvQuestions.setLayoutManager(new LinearLayoutManager(this));
+        activityMainBinding.rvQuestions.setAdapter(questionsAdapter);
 
         stackOverflowViewModel = new ViewModelProvider(this, new StackOverflowViewModelFactory()).get(StackOverflowViewModel.class);
 
-        rvQuestions.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+        activityMainBinding.progressCircular.setVisibility(View.VISIBLE);
+        activityMainBinding.swipeToRefresh.setVisibility(View.GONE);
+        activityMainBinding.rvQuestions.setVisibility(View.GONE);
 
-        btnRetry.setOnClickListener(v -> {
-            progressBar.setVisibility(View.VISIBLE);
-            tvError.setVisibility(View.GONE);
-            btnRetry.setVisibility(View.GONE);
+        activityMainBinding.btnRetry.setOnClickListener(v -> {
+            activityMainBinding.progressCircular.setVisibility(View.VISIBLE);
+            activityMainBinding.tvError.setVisibility(View.GONE);
+            activityMainBinding.btnRetry.setVisibility(View.GONE);
             stackOverflowViewModel.getQuestions();
         });
 
-        swipeToRefresh.setOnRefreshListener(() -> stackOverflowViewModel.getQuestions());
+        activityMainBinding.swipeToRefresh.setOnRefreshListener(() -> stackOverflowViewModel.getQuestions());
 
         stackOverflowViewModel.getQuestions();
         stackOverflowViewModel.getQuestionsResult().observe(this, questionsResponseModelApiResult -> {
-            swipeToRefresh.setRefreshing(false);
-            progressBar.setVisibility(View.GONE);
+            activityMainBinding.swipeToRefresh.setRefreshing(false);
+            activityMainBinding.progressCircular.setVisibility(View.GONE);
             if (questionsResponseModelApiResult.getSuccess() != null) {
-                swipeToRefresh.setVisibility(View.VISIBLE);
-                rvQuestions.setVisibility(View.VISIBLE);
-                tvError.setVisibility(View.GONE);
-                btnRetry.setVisibility(View.GONE);
+                activityMainBinding.swipeToRefresh.setVisibility(View.VISIBLE);
+                activityMainBinding.rvQuestions.setVisibility(View.VISIBLE);
+                activityMainBinding.tvError.setVisibility(View.GONE);
+                activityMainBinding.btnRetry.setVisibility(View.GONE);
                 questionsAdapter.clear();
                 questionsAdapter.addQuestionsList(questionsResponseModelApiResult.getSuccess().getItemsList());
             } else {
-                swipeToRefresh.setVisibility(View.GONE);
-                rvQuestions.setVisibility(View.GONE);
-                tvError.setVisibility(View.VISIBLE);
-                btnRetry.setVisibility(View.VISIBLE);
+                activityMainBinding.swipeToRefresh.setVisibility(View.GONE);
+                activityMainBinding.rvQuestions.setVisibility(View.GONE);
+                activityMainBinding.tvError.setVisibility(View.VISIBLE);
+                activityMainBinding.btnRetry.setVisibility(View.VISIBLE);
             }
         });
 
